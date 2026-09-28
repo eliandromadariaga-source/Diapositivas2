@@ -20,6 +20,12 @@
             color: #4a3b5c;
             overflow: hidden;
             touch-action: pan-y;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         h1, h2, h3, .font-serif {
@@ -48,23 +54,6 @@
             position: relative;
             box-shadow: 0 10px 30px -5px rgba(150, 120, 150, 0.2), 0 0 15px rgba(255, 218, 193, 0.3) inset;
             backdrop-filter: blur(8px);
-        }
-
-        .steam-card::after {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.8) 50%, transparent 70%);
-            background-size: 200% 200%;
-            animation: borderShine 5s linear infinite;
-            z-index: -1;
-            pointer-events: none;
-            border-radius: inherit;
-        }
-
-        @keyframes borderShine {
-            0% { background-position: -100% -100%; }
-            100% { background-position: 200% 200%; }
         }
 
         .speech-bubble::before {
@@ -103,39 +92,65 @@
             100% { transform: translateY(105vh) rotate(360deg) scale(0.8); }
         }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(226, 217, 243, 0.3); }
-        ::-webkit-scrollbar-thumb { background: #b59bc9; border-radius: 3px; }
+        /* Botones de navegación flotantes laterales */
+        .nav-arrow-btn {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 50;
+            background: rgba(226, 217, 243, 0.85);
+            color: #4a3b5c;
+            border: 2px solid rgba(181, 155, 201, 0.5);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(100, 70, 100, 0.15);
+            backdrop-filter: blur(4px);
+            transition: all 0.2s ease;
+        }
+
+        .nav-arrow-btn:hover {
+            background: #b59bc9;
+            color: #ffffff;
+            transform: translateY(-50%) scale(1.08);
+        }
+
+        #prev-arrow { left: 20px; }
+        #next-arrow { right: 20px; }
     </style>
 </head>
-<body class="h-full flex flex-col justify-between selection:bg-[#ffb7c5] selection:text-[#4a3b5c]">
+<body class="selection:bg-[#ffb7c5] selection:text-[#4a3b5c]">
 
     <div id="ice-cream-canvas-container"></div>
 
+    <!-- Flechas laterales flotantes de navegación -->
+    <button id="prev-arrow" onclick="prevSlide()" class="nav-arrow-btn" title="Anterior">
+        <i class="fa-solid fa-chevron-left text-lg"></i>
+    </button>
+    <button id="next-arrow" onclick="nextSlide()" class="nav-arrow-btn" title="Siguiente">
+        <i class="fa-solid fa-chevron-right text-lg"></i>
+    </button>
+
     <!-- Header -->
-    <header class="relative z-20 w-full px-6 py-4 flex items-center justify-between bg-[#e2d9f3]/90 backdrop-blur-md border-b border-[#b59bc9]/30 text-[#4a3b5c] shadow-md">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#ffb7c5] to-[#ffdac1] flex items-center justify-center shadow-md border border-white/50 overflow-hidden">
+    <header class="relative z-20 w-full px-6 py-3 flex items-center justify-between bg-[#e2d9f3]/90 backdrop-blur-md border-b border-[#b59bc9]/30 text-[#4a3b5c] shadow-md">
+        <div class="flex items-center space-x-3.5">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-[#ffb7c5] to-[#ffdac1] flex items-center justify-center shadow-md border-2 border-white/80 overflow-hidden">
                 <img src="https://raw.githubusercontent.com/eliandromadariaga-source/Diapositivas2/main/logo.png" alt="Logo" class="w-full h-full object-cover">
             </div>
             <div>
-                <h1 class="font-serif text-lg font-bold tracking-wide steam-chrome">Vainilla Cream</h1>
+                <h1 class="font-serif text-xl font-bold tracking-wide steam-chrome">Vainilla Cream</h1>
                 <p class="text-xs text-[#7a648c]">Modelo de Negocio Canvas — Annarella Feo y Eliandro Madariaga</p>
             </div>
         </div>
 
         <div class="flex items-center space-x-4">
-            <span id="slide-counter" class="text-sm font-semibold px-3 py-1 bg-white/70 rounded-full border border-[#b59bc9]/40 text-[#4a3b5c]">
+            <span id="slide-counter" class="text-sm font-semibold px-3.5 py-1.5 bg-white/70 rounded-full border border-[#b59bc9]/40 text-[#4a3b5c]">
                 1 / 15
             </span>
-            <div class="hidden sm:flex items-center space-x-1">
-                <button onclick="prevSlide()" class="w-9 h-9 rounded-lg bg-[#b59bc9] hover:bg-[#a285b8] transition flex items-center justify-center text-white shadow cursor-pointer" title="Anterior">
-                    <i class="fa-solid fa-chevron-left"></i>
-                </button>
-                <button onclick="nextSlide()" class="w-9 h-9 rounded-lg bg-[#b59bc9] hover:bg-[#a285b8] transition flex items-center justify-center text-white shadow cursor-pointer" title="Siguiente">
-                    <i class="fa-solid fa-chevron-right"></i>
-                </button>
-            </div>
         </div>
     </header>
 
@@ -143,60 +158,60 @@
         <div id="progress-bar" class="bg-gradient-to-r from-[#ffb7c5] via-[#fff1ba] to-[#a2d2df] h-full transition-all duration-500 ease-out" style="width: 6.66%;"></div>
     </div>
 
-    <!-- Main Presentation Slides Container -->
-    <main class="relative z-10 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-8 py-6 flex items-center justify-center overflow-y-auto">
-        <div id="slides-container" class="w-full relative min-h-[500px] flex items-center justify-center">
+    <!-- Main Presentation Slides Container (Centrado perfecto) -->
+    <main class="relative z-10 flex-1 w-full max-w-5xl mx-auto px-6 py-2 flex items-center justify-center overflow-hidden">
+        <div id="slides-container" class="w-full relative h-full flex items-center justify-center">
 
             <!-- SLIDE 1: Portada -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center text-center p-6 transition-all duration-500" data-slide="1">
-                <div class="steam-card p-8 sm:p-10 rounded-3xl max-w-3xl w-full mx-auto transform hover:scale-[1.01] transition-transform">
-                    <div class="inline-block p-1 rounded-full bg-[#ffb7c5]/20 mb-3 w-20 h-20 mx-auto overflow-hidden border-2 border-[#ffb7c5] shadow-md">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center text-center p-4 transition-all duration-500" data-slide="1">
+                <div class="steam-card p-6 sm:p-8 rounded-3xl max-w-3xl w-full mx-auto shadow-xl">
+                    <div class="inline-block p-1.5 rounded-full bg-[#ffb7c5]/20 mb-3 w-20 h-20 mx-auto overflow-hidden border-2 border-[#ffb7c5] shadow-md">
                         <img src="https://raw.githubusercontent.com/eliandromadariaga-source/Diapositivas2/main/logo.png" alt="Logo" class="w-full h-full object-cover rounded-full">
                     </div>
-                    <h1 class="text-4xl sm:text-5xl font-extrabold font-serif steam-chrome mb-3 leading-tight">
+                    <h1 class="text-3xl sm:text-4xl font-extrabold font-serif steam-chrome mb-2 leading-tight">
                         Vainilla Cream
                     </h1>
-                    <h2 class="text-lg sm:text-xl font-semibold text-[#5a4668] mb-4">
+                    <h2 class="text-base sm:text-lg font-semibold text-[#5a4668] mb-3">
                         Modelo de Negocio Canvas
                     </h2>
-                    <p class="text-xs sm:text-sm text-[#6a547c] mb-6 max-w-xl mx-auto leading-relaxed">
+                    <p class="text-xs sm:text-sm text-[#6a547c] mb-4 max-w-xl mx-auto leading-relaxed">
                         Heladería artesanal con leche certificada frente a la terminal de Tromerca, Ejido, estado Mérida.
                     </p>
-                    <div class="inline-block px-5 py-1.5 rounded-full bg-[#b59bc9] text-white text-xs sm:text-sm font-medium shadow-md">
+                    <div class="inline-block px-4 py-1.5 rounded-full bg-[#b59bc9] text-white text-xs sm:text-sm font-medium shadow-md">
                         <i class="fa-solid fa-user-pen mr-2 text-[#fff1ba]"></i> Autores: Annarella Feo y Eliandro Madariaga
                     </div>
                 </div>
             </div>
 
             <!-- SLIDE 2: ¿Qué es el Modelo Canvas? -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-all duration-500" data-slide="2">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center p-4 hidden opacity-0 transition-all duration-500" data-slide="2">
                 <div class="max-w-4xl w-full">
-                    <h2 class="text-3xl sm:text-4xl font-bold font-serif steam-chrome text-center mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-4">
                         ¿Qué es el Modelo Canvas?
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                        <div class="steam-card p-6 rounded-2xl speech-bubble">
-                            <p class="text-base sm:text-lg text-[#4a3b5c] leading-relaxed font-medium">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
+                        <div class="steam-card p-5 rounded-2xl speech-bubble">
+                            <p class="text-sm sm:text-base text-[#4a3b5c] leading-relaxed font-medium">
                                 9 bloques fundamentales que describen cómo una empresa crea, entrega y captura valor en el mercado actual.
                             </p>
-                            <span class="block mt-3 text-xs text-[#8c73a0] font-semibold">(Osterwalder & Pigneur, 2011)</span>
+                            <span class="block mt-2 text-xs text-[#8c73a0] font-semibold">(Osterwalder & Pigneur, 2011)</span>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="steam-card p-4 rounded-xl text-center">
-                                <i class="fa-solid fa-gift text-2xl text-[#d48395] mb-2"></i>
-                                <h3 class="font-bold text-sm text-[#5a4668]">Propuesta de Valor</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="steam-card p-3 rounded-xl text-center">
+                                <i class="fa-solid fa-gift text-xl text-[#d48395] mb-1"></i>
+                                <h3 class="font-bold text-xs sm:text-sm text-[#5a4668]">Propuesta de Valor</h3>
                             </div>
-                            <div class="steam-card p-4 rounded-xl text-center">
-                                <i class="fa-solid fa-users text-2xl text-[#90b4d4] mb-2"></i>
-                                <h3 class="font-bold text-sm text-[#5a4668]">Interfaz Cliente</h3>
+                            <div class="steam-card p-3 rounded-xl text-center">
+                                <i class="fa-solid fa-users text-xl text-[#90b4d4] mb-1"></i>
+                                <h3 class="font-bold text-xs sm:text-sm text-[#5a4668]">Interfaz Cliente</h3>
                             </div>
-                            <div class="steam-card p-4 rounded-xl text-center">
-                                <i class="fa-solid fa-gears text-2xl text-[#b59bc9] mb-2"></i>
-                                <h3 class="font-bold text-sm text-[#5a4668]">Infraestructura</h3>
+                            <div class="steam-card p-3 rounded-xl text-center">
+                                <i class="fa-solid fa-gears text-xl text-[#b59bc9] mb-1"></i>
+                                <h3 class="font-bold text-xs sm:text-sm text-[#5a4668]">Infraestructura</h3>
                             </div>
-                            <div class="steam-card p-4 rounded-xl text-center">
-                                <i class="fa-solid fa-chart-line text-2xl text-[#e2b78a] mb-2"></i>
-                                <h3 class="font-bold text-sm text-[#5a4668]">Viabilidad Económica</h3>
+                            <div class="steam-card p-3 rounded-xl text-center">
+                                <i class="fa-solid fa-chart-line text-xl text-[#e2b78a] mb-1"></i>
+                                <h3 class="font-bold text-xs sm:text-sm text-[#5a4668]">Viabilidad Económica</h3>
                             </div>
                         </div>
                     </div>
@@ -204,105 +219,105 @@
             </div>
 
             <!-- SLIDE 3: La Empresa -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-all duration-500" data-slide="3">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center p-4 hidden opacity-0 transition-all duration-500" data-slide="3">
                 <div class="max-w-4xl w-full">
-                    <h2 class="text-3xl sm:text-4xl font-bold font-serif steam-chrome text-center mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-4">
                         La Empresa: Vainilla Cream
                     </h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                        <div class="steam-card p-6 rounded-2xl text-center">
-                            <div class="w-14 h-14 mx-auto rounded-full bg-[#ffb7c5]/30 flex items-center justify-center mb-4">
-                                <i class="fa-solid fa-ice-cream text-2xl text-[#d48395]"></i>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                        <div class="steam-card p-5 rounded-2xl text-center">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-[#ffb7c5]/30 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-ice-cream text-xl text-[#d48395]"></i>
                             </div>
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-2">Heladería & Repostería</h3>
-                            <p class="text-sm text-[#6a547c]">Helados artesanales y repostería tradicional (galletas, alfajores, brownies).</p>
+                            <h3 class="font-bold text-base text-[#5a4668] mb-1">Heladería & Repostería</h3>
+                            <p class="text-xs sm:text-sm text-[#6a547c]">Helados artesanales y repostería tradicional (galletas, alfajores, brownies).</p>
                         </div>
-                        <div class="steam-card p-6 rounded-2xl text-center">
-                            <div class="w-14 h-14 mx-auto rounded-full bg-[#fff1ba]/50 flex items-center justify-center mb-4">
-                                <i class="fa-solid fa-mug-hot text-2xl text-[#d9a74a]"></i>
+                        <div class="steam-card p-5 rounded-2xl text-center">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-[#fff1ba]/50 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-mug-hot text-xl text-[#d9a74a]"></i>
                             </div>
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-2">Bebidas & Conectividad</h3>
-                            <p class="text-sm text-[#6a547c]">Malteadas refrescantes, café de calidad y zona con wifi libre.</p>
+                            <h3 class="font-bold text-base text-[#5a4668] mb-1">Bebidas & Conectividad</h3>
+                            <p class="text-xs sm:text-sm text-[#6a547c]">Malteadas refrescantes, café de calidad y zona con wifi libre.</p>
                         </div>
-                        <div class="steam-card p-6 rounded-2xl text-center">
-                            <div class="w-14 h-14 mx-auto rounded-full bg-[#a2d2df]/30 flex items-center justify-center mb-4">
-                                <i class="fa-solid fa-location-dot text-2xl text-[#6096ba]"></i>
+                        <div class="steam-card p-5 rounded-2xl text-center">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-[#a2d2df]/30 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-location-dot text-xl text-[#6096ba]"></i>
                             </div>
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-2">Ubicación Estratégica</h3>
-                            <p class="text-sm text-[#6a547c]">Frente a la terminal de Tromerca, Ejido, Mérida. Público académico y transeúntes.</p>
+                            <h3 class="font-bold text-base text-[#5a4668] mb-1">Ubicación Estratégica</h3>
+                            <p class="text-xs sm:text-sm text-[#6a547c]">Frente a la terminal de Tromerca, Ejido, Mérida. Público académico y transeúntes.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- SLIDE 4: Segmentos de Clientes -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-all duration-500" data-slide="4">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center p-4 hidden opacity-0 transition-all duration-500" data-slide="4">
                 <div class="max-w-4xl w-full">
-                    <h2 class="text-3xl sm:text-4xl font-bold font-serif steam-chrome text-center mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-4">
                         Segmentos de Clientes
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="steam-card p-6 rounded-2xl speech-bubble">
-                            <div class="text-[#90b4d4] font-bold text-sm mb-2"><i class="fa-solid fa-graduation-cap mr-2"></i>Segmento 1</div>
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-2">Instituciones Académicas</h3>
-                            <p class="text-sm text-[#6a547c]">Estudiantes y personal de la ULA, la UPTM y otras instituciones cercanas que buscan wifi libre, espacios cómodos para estudiar o reunirse, y precios accesibles.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div class="steam-card p-5 rounded-2xl speech-bubble">
+                            <div class="text-[#90b4d4] font-bold text-xs mb-1"><i class="fa-solid fa-graduation-cap mr-1"></i>Segmento 1</div>
+                            <h3 class="font-bold text-base text-[#5a4668] mb-1">Instituciones Académicas</h3>
+                            <p class="text-xs sm:text-sm text-[#6a547c]">Estudiantes y personal de la ULA, la UPTM y otras instituciones cercanas que buscan wifi libre, espacios cómodos y precios accesibles.</p>
                         </div>
-                        <div class="steam-card p-6 rounded-2xl speech-bubble">
-                            <div class="text-[#ffb7c5] font-bold text-sm mb-2"><i class="fa-solid fa-house-chimney mr-2 text-[#d48395]"></i><span class="text-[#d48395]">Segmento 2</span></div>
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-2">Familias Locales</h3>
-                            <p class="text-sm text-[#6a547c]">Desean compartir un postre tradicional, de confianza y seguro en un ambiente familiar.</p>
+                        <div class="steam-card p-5 rounded-2xl speech-bubble">
+                            <div class="text-[#ffb7c5] font-bold text-xs mb-1"><i class="fa-solid fa-house-chimney mr-1 text-[#d48395]"></i><span class="text-[#d48395]">Segmento 2</span></div>
+                            <h3 class="font-bold text-base text-[#5a4668] mb-1">Familias Locales</h3>
+                            <p class="text-xs sm:text-sm text-[#6a547c]">Desean compartir un postre tradicional, de confianza y seguro en un ambiente familiar.</p>
                         </div>
-                        <div class="steam-card p-6 rounded-2xl speech-bubble">
-                            <div class="text-[#e2b78a] font-bold text-sm mb-2"><i class="fa-solid fa-person-walking-luggage mr-2 text-[#b07d4b]"></i><span class="text-[#b07d4b]">Segmento 3</span></div>
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-2">Pasajeros & Transeúntes</h3>
-                            <p class="text-sm text-[#6a547c]">Necesitan un antojo rápido, fresco y delicioso camino a sus destinos por la terminal.</p>
+                        <div class="steam-card p-5 rounded-2xl speech-bubble">
+                            <div class="text-[#e2b78a] font-bold text-xs mb-1"><i class="fa-solid fa-person-walking-luggage mr-1 text-[#b07d4b]"></i><span class="text-[#b07d4b]">Segmento 3</span></div>
+                            <h3 class="font-bold text-base text-[#5a4668] mb-1">Pasajeros & Transeúntes</h3>
+                            <p class="text-xs sm:text-sm text-[#6a547c]">Necesitan un antojo rápido, fresco y delicioso camino a sus destinos por la terminal.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- SLIDE 5: Propuesta de Valor -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-all duration-500" data-slide="5">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center p-4 hidden opacity-0 transition-all duration-500" data-slide="5">
                 <div class="max-w-3xl w-full text-center">
-                    <h2 class="text-3xl sm:text-4xl font-bold font-serif steam-chrome mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome mb-4">
                         Propuesta de Valor
                     </h2>
-                    <div class="steam-card p-8 sm:p-10 rounded-3xl speech-bubble shadow-2xl relative">
-                        <i class="fa-solid fa-quote-left text-4xl text-[#b59bc9]/30 absolute top-6 left-6"></i>
-                        <p class="text-lg sm:text-xl text-[#4a3b5c] leading-relaxed italic font-medium px-4">
+                    <div class="steam-card p-6 sm:p-8 rounded-3xl speech-bubble shadow-xl relative">
+                        <i class="fa-solid fa-quote-left text-3xl text-[#b59bc9]/30 absolute top-4 left-4"></i>
+                        <p class="text-base sm:text-lg text-[#4a3b5c] leading-relaxed italic font-medium px-4">
                             "Helados y postres artesanales elaborados con leche certificada, que permiten endulzar el día sin descuidar la salud: sabor tradicional auténtico, precio accesible y variedad en un solo lugar, en un ambiente cómodo para compartir y volver."
                         </p>
-                        <i class="fa-solid fa-quote-right text-4xl text-[#b59bc9]/30 absolute bottom-6 right-6"></i>
+                        <i class="fa-solid fa-quote-right text-3xl text-[#b59bc9]/30 absolute bottom-4 right-4"></i>
                     </div>
-                    <span class="block mt-4 text-xs text-[#8c73a0] font-semibold">(Osterwalder & Pigneur, 2011)</span>
+                    <span class="block mt-3 text-xs text-[#8c73a0] font-semibold">(Osterwalder & Pigneur, 2011)</span>
                 </div>
             </div>
 
             <!-- SLIDE 6: Lienzo de Propuesta de Valor -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-all duration-500" data-slide="6">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center p-4 hidden opacity-0 transition-all duration-500" data-slide="6">
                 <div class="max-w-5xl w-full">
-                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-4">
                         Lienzo de Propuesta de Valor (Cliente vs. Oferta)
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="steam-card p-6 rounded-2xl">
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-3 border-b border-[#b59bc9]/30 pb-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="steam-card p-5 rounded-2xl">
+                            <h3 class="font-bold text-base text-[#5a4668] mb-2 border-b border-[#b59bc9]/30 pb-1.5">
                                 <i class="fa-solid fa-user text-[#b59bc9] mr-2"></i> Perfil del Cliente
                             </h3>
-                            <ul class="space-y-2 text-sm text-[#6a547c]">
-                                <li class="flex items-start"><i class="fa-solid fa-check text-[#b59bc9] mt-1 mr-2"></i><strong>Trabajos:</strong> Disfrutar un postre en tiempo libre, compartir, hallar variedad en un solo lugar.</li>
-                                <li class="flex items-start"><i class="fa-solid fa-triangle-exclamation text-[#d97777] mt-1 mr-2"></i><strong>Frustraciones:</strong> Escasez de opciones artesanales auténticas, precios excesivos, instalaciones incómodas.</li>
-                                <li class="flex items-start"><i class="fa-solid fa-face-smile text-[#6bb084] mt-1 mr-2"></i><strong>Alegrías:</strong> Sabores innovadores, ambiente agradable, promociones accesibles.</li>
+                            <ul class="space-y-1.5 text-xs sm:text-sm text-[#6a547c]">
+                                <li class="flex items-start"><i class="fa-solid fa-check text-[#b59bc9] mt-0.5 mr-2"></i><strong>Trabajos:</strong> Disfrutar un postre en tiempo libre, compartir, hallar variedad.</li>
+                                <li class="flex items-start"><i class="fa-solid fa-triangle-exclamation text-[#d97777] mt-0.5 mr-2"></i><strong>Frustraciones:</strong> Escasez de opciones artesanales, precios excesivos.</li>
+                                <li class="flex items-start"><i class="fa-solid fa-face-smile text-[#6bb084] mt-0.5 mr-2"></i><strong>Alegrías:</strong> Sabores innovadores, ambiente agradable, promociones accesibles.</li>
                             </ul>
                         </div>
-                        <div class="steam-card p-6 rounded-2xl">
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-3 border-b border-[#b59bc9]/30 pb-2">
+                        <div class="steam-card p-5 rounded-2xl">
+                            <h3 class="font-bold text-base text-[#5a4668] mb-2 border-b border-[#b59bc9]/30 pb-1.5">
                                 <i class="fa-solid fa-box text-[#b59bc9] mr-2"></i> Mapa de Valor
                             </h3>
-                            <ul class="space-y-2 text-sm text-[#6a547c]">
-                                <li class="flex items-start"><i class="fa-solid fa-ice-cream text-[#d48395] mt-1 mr-2"></i><strong>Productos y Servicios:</strong> Helados, malteadas, café, repostería artesanal.</li>
-                                <li class="flex items-start"><i class="fa-solid fa-shield-halved text-[#6096ba] mt-1 mr-2"></i><strong>Aliviadores de Frustraciones:</strong> Leche certificada, excelente relación calidad-precio, wifi libre.</li>
-                                <li class="flex items-start"><i class="fa-solid fa-star text-[#d9a74a] mt-1 mr-2"></i><strong>Creadores de Alegría:</strong> Combos especiales, experiencia tradicional acogedora.</li>
+                            <ul class="space-y-1.5 text-xs sm:text-sm text-[#6a547c]">
+                                <li class="flex items-start"><i class="fa-solid fa-ice-cream text-[#d48395] mt-0.5 mr-2"></i><strong>Productos:</strong> Helados, malteadas, café, repostería artesanal.</li>
+                                <li class="flex items-start"><i class="fa-solid fa-shield-halved text-[#6096ba] mt-0.5 mr-2"></i><strong>Aliviadores:</strong> Leche certificada, excelente relación calidad-precio, wifi libre.</li>
+                                <li class="flex items-start"><i class="fa-solid fa-star text-[#d9a74a] mt-0.5 mr-2"></i><strong>Creadores de Alegría:</strong> Combos especiales, experiencia tradicional acogedora.</li>
                             </ul>
                         </div>
                     </div>
@@ -310,128 +325,128 @@
             </div>
 
             <!-- SLIDE 7: Canales -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-all duration-500" data-slide="7">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center p-4 hidden opacity-0 transition-all duration-500" data-slide="7">
                 <div class="max-w-4xl w-full">
-                    <h2 class="text-3xl sm:text-4xl font-bold font-serif steam-chrome text-center mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-4">
                         Canales (5 Fases de Compra)
                     </h2>
                     <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
-                        <div class="steam-card p-4 rounded-xl text-center">
+                        <div class="steam-card p-3.5 rounded-xl text-center">
                             <div class="text-[#b59bc9] font-bold text-xs mb-1">Fase 1</div>
-                            <h3 class="font-bold text-sm text-[#5a4668] mb-1">Concienciación</h3>
-                            <p class="text-xs text-[#6a547c]">Redes sociales y señalización en la terminal.</p>
+                            <h3 class="font-bold text-xs sm:text-sm text-[#5a4668] mb-1">Concienciación</h3>
+                            <p class="text-[11px] sm:text-xs text-[#6a547c]">Redes sociales y señalización en la terminal.</p>
                         </div>
-                        <div class="steam-card p-4 rounded-xl text-center">
+                        <div class="steam-card p-3.5 rounded-xl text-center">
                             <div class="text-[#b59bc9] font-bold text-xs mb-1">Fase 2</div>
-                            <h3 class="font-bold text-sm text-[#5a4668] mb-1">Evaluación</h3>
-                            <p class="text-xs text-[#6a547c]">Menú con precios, degustación de muestras y reseñas.</p>
+                            <h3 class="font-bold text-xs sm:text-sm text-[#5a4668] mb-1">Evaluación</h3>
+                            <p class="text-[11px] sm:text-xs text-[#6a547c]">Menú con precios, degustación de muestras y reseñas.</p>
                         </div>
-                        <div class="steam-card p-4 rounded-xl text-center">
+                        <div class="steam-card p-3.5 rounded-xl text-center">
                             <div class="text-[#b59bc9] font-bold text-xs mb-1">Fase 3</div>
-                            <h3 class="font-bold text-sm text-[#5a4668] mb-1">Compra</h3>
-                            <p class="text-xs text-[#6a547c]">Mostrador físico, pagos en efectivo y pago móvil.</p>
+                            <h3 class="font-bold text-xs sm:text-sm text-[#5a4668] mb-1">Compra</h3>
+                            <p class="text-[11px] sm:text-xs text-[#6a547c]">Mostrador físico, pagos en efectivo y pago móvil.</p>
                         </div>
-                        <div class="steam-card p-4 rounded-xl text-center">
+                        <div class="steam-card p-3.5 rounded-xl text-center">
                             <div class="text-[#b59bc9] font-bold text-xs mb-1">Fase 4</div>
-                            <h3 class="font-bold text-sm text-[#5a4668] mb-1">Entrega</h3>
-                            <p class="text-xs text-[#6a547c]">Consumo directo en el local o pedidos para llevar.</p>
+                            <h3 class="font-bold text-xs sm:text-sm text-[#5a4668] mb-1">Entrega</h3>
+                            <p class="text-[11px] sm:text-xs text-[#6a547c]">Consumo directo en el local o pedidos para llevar.</p>
                         </div>
-                        <div class="steam-card p-4 rounded-xl text-center">
+                        <div class="steam-card p-3.5 rounded-xl text-center">
                             <div class="text-[#b59bc9] font-bold text-xs mb-1">Fase 5</div>
-                            <h3 class="font-bold text-sm text-[#5a4668] mb-1">Postventa</h3>
-                            <p class="text-xs text-[#6a547c]">Buzón de sugerencias, redes y fidelización.</p>
+                            <h3 class="font-bold text-xs sm:text-sm text-[#5a4668] mb-1">Postventa</h3>
+                            <p class="text-[11px] sm:text-xs text-[#6a547c]">Buzón de sugerencias, redes y fidelización.</p>
                         </div>
                     </div>
-                    <span class="block text-center mt-4 text-xs text-[#8c73a0] font-semibold">(HubSpot, 2025)</span>
+                    <span class="block text-center mt-3 text-xs text-[#8c73a0] font-semibold">(HubSpot, 2025)</span>
                 </div>
             </div>
 
             <!-- SLIDE 8: Relaciones con Clientes -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-all duration-500" data-slide="8">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center p-4 hidden opacity-0 transition-all duration-500" data-slide="8">
                 <div class="max-w-4xl w-full">
-                    <h2 class="text-3xl sm:text-4xl font-bold font-serif steam-chrome text-center mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-4">
                         Relaciones con Clientes
                     </h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div class="steam-card p-6 rounded-2xl speech-bubble">
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-2"><i class="fa-solid fa-hands-holding-child text-[#d48395] mr-2"></i> Servicio Personal & Familiar</h3>
-                            <p class="text-sm text-[#6a547c]">Trato cercano y cálido con cada consumidor, fomentando un ambiente familiar y de confianza en el establecimiento.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="steam-card p-4 rounded-2xl speech-bubble">
+                            <h3 class="font-bold text-base text-[#5a4668] mb-1"><i class="fa-solid fa-hands-holding-child text-[#d48395] mr-2"></i> Servicio Personal & Familiar</h3>
+                            <p class="text-xs sm:text-sm text-[#6a547c]">Trato cercano y cálido con cada consumidor, fomentando un ambiente familiar y de confianza.</p>
                         </div>
-                        <div class="steam-card p-6 rounded-2xl speech-bubble">
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-2"><i class="fa-solid fa-wifi text-[#6096ba] mr-2"></i> Auto-servicio & Conectividad</h3>
-                            <p class="text-sm text-[#6a547c]">Zona libre con wifi para estudiantes y profesionales que optimizan su estancia de estudio o trabajo.</p>
+                        <div class="steam-card p-4 rounded-2xl speech-bubble">
+                            <h3 class="font-bold text-base text-[#5a4668] mb-1"><i class="fa-solid fa-wifi text-[#6096ba] mr-2"></i> Auto-servicio & Conectividad</h3>
+                            <p class="text-xs sm:text-sm text-[#6a547c]">Zona libre con wifi para estudiantes y profesionales que optimizan su estancia de estudio.</p>
                         </div>
-                        <div class="steam-card p-6 rounded-2xl speech-bubble">
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-2"><i class="fa-solid fa-comments text-[#b59bc9] mr-2"></i> Co-creación</h3>
-                            <p class="text-sm text-[#6a547c]">Buzón de sugerencias activo para integrar nuevas ideas, sabores y peticiones de la comunidad.</p>
+                        <div class="steam-card p-4 rounded-2xl speech-bubble">
+                            <h3 class="font-bold text-base text-[#5a4668] mb-1"><i class="fa-solid fa-comments text-[#b59bc9] mr-2"></i> Co-creación</h3>
+                            <p class="text-xs sm:text-sm text-[#6a547c]">Buzón de sugerencias activo para integrar nuevas ideas, sabores y peticiones de la comunidad.</p>
                         </div>
-                        <div class="steam-card p-6 rounded-2xl speech-bubble">
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-2"><i class="fa-solid fa-award text-[#d9a74a] mr-2"></i> Fidelización</h3>
-                            <p class="text-sm text-[#6a547c]">Promociones especiales y programas de recompensa para clientes recurrentes y familias.</p>
+                        <div class="steam-card p-4 rounded-2xl speech-bubble">
+                            <h3 class="font-bold text-base text-[#5a4668] mb-1"><i class="fa-solid fa-award text-[#d9a74a] mr-2"></i> Fidelización</h3>
+                            <p class="text-xs sm:text-sm text-[#6a547c]">Promociones especiales y programas de recompensa para clientes recurrentes y familias.</p>
                         </div>
                     </div>
-                    <span class="block text-center mt-3 text-xs text-[#8c73a0] font-semibold">(Zendesk, 2026)</span>
+                    <span class="block text-center mt-2 text-xs text-[#8c73a0] font-semibold">(Zendesk, 2026)</span>
                 </div>
             </div>
 
             <!-- SLIDE 9: Recursos Clave -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-all duration-500" data-slide="9">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center p-4 hidden opacity-0 transition-all duration-500" data-slide="9">
                 <div class="max-w-4xl w-full">
-                    <h2 class="text-3xl sm:text-4xl font-bold font-serif steam-chrome text-center mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-4">
                         Recursos Clave
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="steam-card p-6 rounded-2xl text-center">
-                            <div class="w-14 h-14 mx-auto rounded-full bg-[#6096ba]/20 flex items-center justify-center mb-4">
-                                <i class="fa-solid fa-industry text-2xl text-[#6096ba]"></i>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div class="steam-card p-5 rounded-2xl text-center">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-[#6096ba]/20 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-industry text-xl text-[#6096ba]"></i>
                             </div>
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-2">Físicos</h3>
-                            <p class="text-sm text-[#6a547c]">Maquinaria de refrigeración, mantecadoras industriales, vitrinas y local comercial acondicionado.</p>
+                            <h3 class="font-bold text-base text-[#5a4668] mb-1">Físicos</h3>
+                            <p class="text-xs sm:text-sm text-[#6a547c]">Maquinaria de refrigeración, mantecadoras industriales, vitrinas y local comercial acondicionado.</p>
                         </div>
-                        <div class="steam-card p-6 rounded-2xl text-center">
-                            <div class="w-14 h-14 mx-auto rounded-full bg-[#b59bc9]/20 flex items-center justify-center mb-4">
-                                <i class="fa-solid fa-brain text-2xl text-[#b59bc9]"></i>
+                        <div class="steam-card p-5 rounded-2xl text-center">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-[#b59bc9]/20 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-brain text-xl text-[#b59bc9]"></i>
                             </div>
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-2">Intelectuales</h3>
-                            <p class="text-sm text-[#6a547c]">Recetas artesanales secretas y exclusivas, identidad de marca registrada y canales digitales.</p>
+                            <h3 class="font-bold text-base text-[#5a4668] mb-1">Intelectuales</h3>
+                            <p class="text-xs sm:text-sm text-[#6a547c]">Recetas artesanales secretas y exclusivas, identidad de marca registrada y canales digitales.</p>
                         </div>
-                        <div class="steam-card p-6 rounded-2xl text-center">
-                            <div class="w-14 h-14 mx-auto rounded-full bg-[#ffb7c5]/30 flex items-center justify-center mb-4">
-                                <i class="fa-solid fa-users-gear text-2xl text-[#d48395]"></i>
+                        <div class="steam-card p-5 rounded-2xl text-center">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-[#ffb7c5]/30 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-users-gear text-xl text-[#d48395]"></i>
                             </div>
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-2">Humanos</h3>
-                            <p class="text-sm text-[#6a547c]">Maestro heladero y repostero experto, personal de atención comercial, soporte operativo y marketing.</p>
+                            <h3 class="font-bold text-base text-[#5a4668] mb-1">Humanos</h3>
+                            <p class="text-xs sm:text-sm text-[#6a547c]">Maestro heladero y repostero experto, personal de atención comercial, soporte operativo y marketing.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- SLIDE 10: Actividades y Alianzas Clave -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-all duration-500" data-slide="10">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center p-4 hidden opacity-0 transition-all duration-500" data-slide="10">
                 <div class="max-w-4xl w-full">
-                    <h2 class="text-3xl sm:text-4xl font-bold font-serif steam-chrome text-center mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-4">
                         Actividades y Alianzas Clave
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="steam-card p-6 rounded-2xl">
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-3 border-b border-[#b59bc9]/30 pb-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="steam-card p-5 rounded-2xl">
+                            <h3 class="font-bold text-base text-[#5a4668] mb-2 border-b border-[#b59bc9]/30 pb-1.5">
                                 <i class="fa-solid fa-gears text-[#b59bc9] mr-2"></i> Actividades Clave
                             </h3>
-                            <ul class="space-y-2 text-sm text-[#6a547c]">
-                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-[#d48395] mt-1 mr-2 text-xs"></i> Producción diaria de helados y horneado de repostería fresca.</li>
-                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-[#d48395] mt-1 mr-2 text-xs"></i> Control estricto de la cadena de frío e inventarios.</li>
-                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-[#d48395] mt-1 mr-2 text-xs"></i> Atención directa en mostrador y gestión de experiencia en local.</li>
-                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-[#d48395] mt-1 mr-2 text-xs"></i> Marketing digital y campañas locales en redes sociales.</li>
+                            <ul class="space-y-1.5 text-xs sm:text-sm text-[#6a547c]">
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-[#d48395] mt-1 mr-2 text-[10px]"></i> Producción diaria de helados y horneado de repostería fresca.</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-[#d48395] mt-1 mr-2 text-[10px]"></i> Control estricto de la cadena de frío e inventarios.</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-[#d48395] mt-1 mr-2 text-[10px]"></i> Atención directa en mostrador y gestión de experiencia en local.</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-[#d48395] mt-1 mr-2 text-[10px]"></i> Marketing digital y campañas locales en redes sociales.</li>
                             </ul>
                         </div>
-                        <div class="steam-card p-6 rounded-2xl">
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-3 border-b border-[#b59bc9]/30 pb-2">
+                        <div class="steam-card p-5 rounded-2xl">
+                            <h3 class="font-bold text-base text-[#5a4668] mb-2 border-b border-[#b59bc9]/30 pb-1.5">
                                 <i class="fa-solid fa-handshake text-[#6096ba] mr-2"></i> Alianzas Clave
                             </h3>
-                            <ul class="space-y-2 text-sm text-[#6a547c]">
-                                <li class="flex items-start"><i class="fa-solid fa-circle-check text-[#6096ba] mt-1 mr-2"></i> Proveedores certificados de leche e insumos lácteos de calidad.</li>
-                                <li class="flex items-start"><i class="fa-solid fa-circle-check text-[#6096ba] mt-1 mr-2"></i> Técnicos especializados en mantenimiento de refrigeración.</li>
-                                <li class="flex items-start"><i class="fa-solid fa-circle-check text-[#6096ba] mt-1 mr-2"></i> Proveedores de servicios externos y conectividad de red.</li>
+                            <ul class="space-y-1.5 text-xs sm:text-sm text-[#6a547c]">
+                                <li class="flex items-start"><i class="fa-solid fa-circle-check text-[#6096ba] mt-0.5 mr-2"></i> Proveedores certificados de leche e insumos lácteos de calidad.</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-check text-[#6096ba] mt-0.5 mr-2"></i> Técnicos especializados en mantenimiento de refrigeración.</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-check text-[#6096ba] mt-0.5 mr-2"></i> Proveedores de servicios externos y conectividad de red.</li>
                             </ul>
                         </div>
                     </div>
@@ -439,20 +454,20 @@
             </div>
 
             <!-- SLIDE 11: Fuentes de Ingresos -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-all duration-500" data-slide="11">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center p-4 hidden opacity-0 transition-all duration-500" data-slide="11">
                 <div class="max-w-3xl w-full text-center">
-                    <h2 class="text-3xl sm:text-4xl font-bold font-serif steam-chrome mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome mb-4">
                         Fuentes de Ingresos
                     </h2>
-                    <div class="steam-card p-8 sm:p-10 rounded-3xl speech-bubble">
-                        <div class="w-16 h-16 mx-auto rounded-full bg-[#fff1ba]/50 flex items-center justify-center mb-4">
-                            <i class="fa-solid fa-cash-register text-3xl text-[#d9a74a]"></i>
+                    <div class="steam-card p-6 sm:p-8 rounded-3xl speech-bubble">
+                        <div class="w-14 h-14 mx-auto rounded-full bg-[#fff1ba]/50 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-cash-register text-2xl text-[#d9a74a]"></i>
                         </div>
-                        <h3 class="font-bold text-xl text-[#5a4668] mb-3">Modelo Transaccional por Venta Directa</h3>
-                        <p class="text-base text-[#6a547c] leading-relaxed mb-6">
+                        <h3 class="font-bold text-lg text-[#5a4668] mb-2">Modelo Transaccional por Venta Directa</h3>
+                        <p class="text-sm sm:text-base text-[#6a547c] leading-relaxed mb-4">
                             Ingresos generados por la venta al detalle de helados, postres y bebidas. Métodos de cobro adaptados al mercado local: efectivo y pago móvil.
                         </p>
-                        <div class="inline-block px-8 py-3 rounded-2xl bg-[#b59bc9] text-white text-xl font-bold shadow-lg border border-white/50">
+                        <div class="inline-block px-6 py-2.5 rounded-2xl bg-[#b59bc9] text-white text-lg font-bold shadow-lg border border-white/50">
                             <i class="fa-solid fa-dollar-sign mr-1 text-[#fff1ba]"></i> Ingreso Mensual Estimado: US$ 1.500
                         </div>
                     </div>
@@ -460,38 +475,38 @@
             </div>
 
             <!-- SLIDE 12: Estructura de Costos -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-all duration-500" data-slide="12">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center p-4 hidden opacity-0 transition-all duration-500" data-slide="12">
                 <div class="max-w-4xl w-full">
-                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-4">
                         Estructura de Costos Mensuales
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                        <div class="steam-card p-6 rounded-2xl">
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-3 border-b border-[#b59bc9]/30 pb-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
+                        <div class="steam-card p-5 rounded-2xl">
+                            <h3 class="font-bold text-base text-[#5a4668] mb-2 border-b border-[#b59bc9]/30 pb-1.5">
                                 Costos Fijos Mensuales
                             </h3>
-                            <ul class="space-y-2 text-sm text-[#6a547c]">
+                            <ul class="space-y-1.5 text-xs sm:text-sm text-[#6a547c]">
                                 <li class="flex justify-between"><span>Alquiler de local:</span> <strong class="text-[#5a4668]">US$ 300</strong></li>
                                 <li class="flex justify-between"><span>Servicios públicos:</span> <strong class="text-[#5a4668]">US$ 80</strong></li>
                                 <li class="flex justify-between"><span>Personal:</span> <strong class="text-[#5a4668]">US$ 250</strong></li>
                                 <li class="flex justify-between"><span>Mantenimiento:</span> <strong class="text-[#5a4668]">US$ 50</strong></li>
                                 <li class="flex justify-between"><span>Marketing:</span> <strong class="text-[#5a4668]">US$ 40</strong></li>
-                                <li class="border-t border-[#b59bc9]/30 pt-2 flex justify-between font-bold text-base text-[#5a4668]">
+                                <li class="border-t border-[#b59bc9]/30 pt-1.5 flex justify-between font-bold text-sm text-[#5a4668]">
                                     <span>Total Fijos:</span> <span>US$ 720</span>
                                 </li>
                             </ul>
                         </div>
-                        <div class="steam-card p-6 rounded-2xl space-y-4">
-                            <h3 class="font-bold text-lg text-[#5a4668] mb-2 border-b border-[#b59bc9]/30 pb-2">
+                        <div class="steam-card p-5 rounded-2xl space-y-3">
+                            <h3 class="font-bold text-base text-[#5a4668] mb-1.5 border-b border-[#b59bc9]/30 pb-1.5">
                                 Costos Variables & Margen
                             </h3>
-                            <div class="p-4 rounded-xl bg-white/70 border border-[#b59bc9]/20">
-                                <p class="text-sm text-[#6a547c] font-medium mb-1">Costos Variables (35% de ventas):</p>
-                                <p class="text-xl font-bold text-[#5a4668]">US$ 525</p>
+                            <div class="p-3 rounded-xl bg-white/70 border border-[#b59bc9]/20">
+                                <p class="text-xs sm:text-sm text-[#6a547c] font-medium mb-0.5">Costos Variables (35% de ventas):</p>
+                                <p class="text-lg font-bold text-[#5a4668]">US$ 525</p>
                             </div>
-                            <div class="p-4 rounded-xl bg-white/70 border border-[#b59bc9]/20">
-                                <p class="text-sm text-[#6a547c] font-medium mb-1">Margen de Contribución:</p>
-                                <p class="text-xl font-bold text-[#6bb084]">65%</p>
+                            <div class="p-3 rounded-xl bg-white/70 border border-[#b59bc9]/20">
+                                <p class="text-xs sm:text-sm text-[#6a547c] font-medium mb-0.5">Margen de Contribución:</p>
+                                <p class="text-lg font-bold text-[#6bb084]">65%</p>
                             </div>
                         </div>
                     </div>
@@ -499,27 +514,27 @@
             </div>
 
             <!-- SLIDE 13: Portafolio, Precios, Flujo e Imagen de la Galleta -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-all duration-500" data-slide="13">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center p-4 hidden opacity-0 transition-all duration-500" data-slide="13">
                 <div class="max-w-5xl w-full">
-                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-3">
                         Portafolio, Precios y Repostería Artesanal
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="steam-card p-4 rounded-2xl">
-                            <h3 class="font-bold text-sm text-[#5a4668] mb-2"><i class="fa-solid fa-tags text-[#b59bc9] mr-1"></i> Portafolio (13 Productos)</h3>
-                            <p class="text-xs text-[#6a547c]">
+                            <h3 class="font-bold text-xs sm:text-sm text-[#5a4668] mb-1.5"><i class="fa-solid fa-tags text-[#b59bc9] mr-1"></i> Portafolio (13 Productos)</h3>
+                            <p class="text-[11px] sm:text-xs text-[#6a547c]">
                                 Rango de precios entre <strong>US$ 1,00 y US$ 6,50</strong> (helados, PHP/PHG/PHIP, promos, malteada, café, brownie, galleta, alfajores) con márgenes estables de 65% - 70%.
                             </p>
                         </div>
-                        <div class="steam-card p-4 rounded-2xl text-center flex flex-col items-center justify-center">
-                            <div class="w-full rounded-xl overflow-hidden border border-[#ffb7c5]/50 shadow-sm max-h-[140px]">
+                        <div class="steam-card p-3 rounded-2xl text-center flex flex-col items-center justify-center">
+                            <div class="w-full rounded-xl overflow-hidden border border-[#ffb7c5]/50 shadow-sm max-h-[120px] flex items-center justify-center">
                                 <img src="https://raw.githubusercontent.com/eliandromadariaga-source/Diapositivas2/main/galleta.jpeg" alt="Galletas Vainilla Cream" class="w-full h-full object-cover">
                             </div>
-                            <span class="mt-2 text-xs font-semibold text-[#5a4668]">🍪 Galletas artesanales con chips</span>
+                            <span class="mt-1.5 text-xs font-semibold text-[#5a4668]">🍪 Galletas artesanales con chips</span>
                         </div>
                         <div class="steam-card p-4 rounded-2xl">
-                            <h3 class="font-bold text-sm text-[#5a4668] mb-2"><i class="fa-solid fa-wallet text-[#b59bc9] mr-1"></i> Flujo Financiero Mensual</h3>
-                            <div class="space-y-1 text-xs text-[#6a547c]">
+                            <h3 class="font-bold text-xs sm:text-sm text-[#5a4668] mb-1.5"><i class="fa-solid fa-wallet text-[#b59bc9] mr-1"></i> Flujo Financiero Mensual</h3>
+                            <div class="space-y-1 text-[11px] sm:text-xs text-[#6a547c]">
                                 <div class="flex justify-between"><span>Ingresos:</span> <span class="font-bold text-[#6bb084]">+ US$ 1.500</span></div>
                                 <div class="flex justify-between"><span>Costos Var.:</span> <span class="font-bold text-[#d97777]">- US$ 525</span></div>
                                 <div class="flex justify-between"><span>Costos Fijos:</span> <span class="font-bold text-[#d97777]">- US$ 720</span></div>
@@ -533,14 +548,14 @@
             </div>
 
             <!-- SLIDE 14: FODA, Equipo Mínimo Viable y Videos Demostrativos -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-all duration-500" data-slide="14">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center p-4 hidden opacity-0 transition-all duration-500" data-slide="14">
                 <div class="max-w-5xl w-full">
-                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome text-center mb-3">
                         Matriz FODA, Equipo & Experiencia en Video
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="steam-card p-4 rounded-2xl">
-                            <h3 class="font-bold text-xs text-[#5a4668] mb-1.5 border-b border-[#b59bc9]/30 pb-1">Análisis FODA</h3>
+                        <div class="steam-card p-3.5 rounded-2xl">
+                            <h3 class="font-bold text-xs text-[#5a4668] mb-1 border-b border-[#b59bc9]/30 pb-1">Análisis FODA</h3>
                             <ul class="space-y-1 text-[11px] text-[#6a547c]">
                                 <li class="flex items-start"><strong class="text-[#6bb084] mr-1">F:</strong> Recetas artesanales, gestión familiar.</li>
                                 <li class="flex items-start"><strong class="text-[#6096ba] mr-1">O:</strong> Expansión con público universitario ULA.</li>
@@ -548,8 +563,8 @@
                                 <li class="flex items-start"><strong class="text-[#d9a74a] mr-1">A:</strong> Fallas eléctricas e insumos variables.</li>
                             </ul>
                         </div>
-                        <div class="steam-card p-4 rounded-2xl">
-                            <h3 class="font-bold text-xs text-[#5a4668] mb-1.5 border-b border-[#b59bc9]/30 pb-1">Equipo Mínimo Viable</h3>
+                        <div class="steam-card p-3.5 rounded-2xl">
+                            <h3 class="font-bold text-xs text-[#5a4668] mb-1 border-b border-[#b59bc9]/30 pb-1">Equipo Mínimo Viable</h3>
                             <ul class="space-y-1 text-[11px] text-[#6a547c]">
                                 <li><i class="fa-solid fa-user-tie text-[#b59bc9] mr-1"></i><strong>Gerencia:</strong> Dirección y finanzas.</li>
                                 <li><i class="fa-solid fa-hat-chef text-[#d48395] mr-1"></i><strong>Maestro Heladero:</strong> Producción.</li>
@@ -557,15 +572,15 @@
                                 <li><i class="fa-solid fa-bullhorn text-[#d9a74a] mr-1"></i><strong>Marketing:</strong> Redes y logística.</li>
                             </ul>
                         </div>
-                        <div class="steam-card p-4 rounded-2xl flex flex-col items-center justify-center">
-                            <h3 class="font-bold text-xs text-[#5a4668] mb-2">Videos Demostrativos</h3>
+                        <div class="steam-card p-3.5 rounded-2xl flex flex-col items-center justify-center">
+                            <h3 class="font-bold text-xs text-[#5a4668] mb-1.5">Videos Demostrativos</h3>
                             <div class="grid grid-cols-2 gap-2 w-full">
-                                <div class="rounded-lg overflow-hidden bg-black aspect-[9/16] max-h-[120px] flex items-center justify-center">
+                                <div class="rounded-lg overflow-hidden bg-black aspect-[9/16] max-h-[110px] flex items-center justify-center">
                                     <video controls preload="metadata" playsinline class="w-full h-full object-cover">
                                         <source src="VID-20260820-WA0182.mp4" type="video/mp4">
                                     </video>
                                 </div>
-                                <div class="rounded-lg overflow-hidden bg-black aspect-[9/16] max-h-[120px] flex items-center justify-center">
+                                <div class="rounded-lg overflow-hidden bg-black aspect-[9/16] max-h-[110px] flex items-center justify-center">
                                     <video controls preload="metadata" playsinline class="w-full h-full object-cover">
                                         <source src="WhatsApp Video 2026-09-27 at 7.57.53 PM.mp4" type="video/mp4">
                                     </video>
@@ -577,20 +592,20 @@
             </div>
 
             <!-- SLIDE 15: Conclusión y Cierre -->
-            <div class="slide absolute inset-0 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-all duration-500" data-slide="15">
+            <div class="slide absolute inset-0 m-auto flex flex-col items-center justify-center p-4 hidden opacity-0 transition-all duration-500" data-slide="15">
                 <div class="max-w-3xl w-full text-center">
                     <div class="w-16 h-16 mx-auto rounded-full bg-[#ffb7c5]/20 mb-2 overflow-hidden border-2 border-[#ffb7c5] shadow-md">
                         <img src="https://raw.githubusercontent.com/eliandromadariaga-source/Diapositivas2/main/logo.png" alt="Logo" class="w-full h-full object-cover">
                     </div>
-                    <h2 class="text-3xl sm:text-4xl font-bold font-serif steam-chrome mb-3">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif steam-chrome mb-2">
                         ¡Preguntas?
                     </h2>
-                    <div class="steam-card p-6 rounded-3xl speech-bubble mb-4">
-                        <p class="text-xs sm:text-sm text-[#4a3b5c] font-medium mb-4">
+                    <div class="steam-card p-5 rounded-3xl speech-bubble mb-3">
+                        <p class="text-xs sm:text-sm text-[#4a3b5c] font-medium mb-3">
                             Modelo viable, rentable y profundamente conectado con las necesidades del cliente local en Ejido, Mérida. Siguiente paso: expansión gradual a nuevos puntos de venta.
                         </p>
                         <div class="flex flex-wrap justify-center gap-4">
-                            <span class="px-4 py-2 bg-[#b59bc9] text-white rounded-full text-xs sm:text-sm font-semibold shadow">
+                            <span class="px-4 py-1.5 bg-[#b59bc9] text-white rounded-full text-xs sm:text-sm font-semibold shadow">
                                 <i class="fa-brands fa-instagram mr-2 text-[#fff1ba]"></i> @Heladeriavainilla.cream
                             </span>
                         </div>
@@ -603,9 +618,9 @@
     </main>
 
     <!-- Footer -->
-    <footer class="relative z-20 w-full px-6 py-4 bg-[#e2d9f3]/90 backdrop-blur-md border-t border-[#b59bc9]/30 flex items-center justify-between text-xs text-[#7a648c]">
+    <footer class="relative z-20 w-full px-6 py-2.5 bg-[#e2d9f3]/90 backdrop-blur-md border-t border-[#b59bc9]/30 flex items-center justify-between text-xs text-[#7a648c]">
         <div>
-            <span>Usa las flechas del teclado, desliza o haz clic para navegar.</span>
+            <span>Usa las flechas laterales, teclado o desliza para navegar.</span>
         </div>
         <div class="flex items-center space-x-2">
             <span class="hidden sm:inline">Vainilla Cream 2026</span>
@@ -620,13 +635,13 @@
             const container = document.getElementById('ice-cream-canvas-container');
             const icons = [
                 '<i class="fa-solid fa-ice-cream text-2xl text-[#ffb7c5]"></i>',
-                '<i class="fa-solid fa-cookie-bite text-xl text-[#e2b78a]"></i>',
+                '<i class="fa-solid fa-cookie-bite text-xl text-[#e2d9f3]"></i>',
                 '<i class="fa-solid fa-mug-hot text-xl text-[#fff1ba]"></i>',
                 '<i class="fa-solid fa-cake-candles text-2xl text-[#b59bc9]"></i>',
                 '<i class="fa-solid fa-bowl-food text-xl text-[#a2d2df]"></i>'
             ];
             
-            const count = window.innerWidth < 768 ? 12 : 25;
+            const count = window.innerWidth < 768 ? 10 : 20;
             for (let i = 0; i < count; i++) {
                 const div = document.createElement('div');
                 div.className = 'falling-item';
